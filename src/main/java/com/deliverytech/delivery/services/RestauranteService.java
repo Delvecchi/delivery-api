@@ -2,101 +2,42 @@ package com.deliverytech.delivery.services;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
 
-import com.deliverytech.delivery.entities.Restaurante;
-import com.deliverytech.delivery.repositories.RestauranteRepository;
+import com.deliverytech.delivery.dtos.request.RestauranteRequestDTO;
+import com.deliverytech.delivery.dtos.response.RestauranteResponseDTO;
+import com.deliverytech.delivery.projection.RelatorioVendas;
 
-@Service
-@Transactional
-public class RestauranteService {
+public interface RestauranteService {
 
-	@Autowired
-	private RestauranteRepository restauranteRepository;
+    RestauranteResponseDTO cadastrarRestaurante(RestauranteRequestDTO restauranteRequestDTO);
+    
+    RestauranteResponseDTO buscarRestaurantePorId(Long id);
 
-	/**
-	 * Cadastrar novo restaurante
-	 */
-	public Restaurante cadastrar(Restaurante restaurante) {
-		// Validar nome único
-		if (restauranteRepository.findByNome(restaurante.getNome()).isPresent()) {
-			throw new IllegalArgumentException("Restaurante já cadastrado: " + restaurante.getNome());
-		}
+    RestauranteResponseDTO atualizarRestaurante(Long id, RestauranteRequestDTO restauranteRequestDTO);
 
-		validarDadosRestaurante(restaurante);
-		restaurante.setAtivo(true);
+    RestauranteResponseDTO ativarDesativarRestaurante(Long id);
 
-		return restauranteRepository.save(restaurante);
-	}
+    RestauranteResponseDTO buscarRestaurantePorNome(String nome);
 
-	/**
-	 * Buscar por ID
-	 */
-	@Transactional(readOnly = true)
-	public Optional<Restaurante> buscarPorId(Long id) {
-		return restauranteRepository.findById(id);
-	}
+    List<RestauranteResponseDTO> buscarRestaurantePorCategoria(String categoria);
 
-	/**
-	 * Listar restaurantes ativos
-	 */
-	@Transactional(readOnly = true)
-	public List<Restaurante> listarAtivos() {
-		return restauranteRepository.findByAtivoTrue();
-	}
+    List<RestauranteResponseDTO> buscarRestaurantePorPreco(BigDecimal precoMinimo, BigDecimal precoMaximo);
 
-	/**
-	 * Buscar por categoria
-	 */
-	@Transactional(readOnly = true)
-	public List<Restaurante> buscarPorCategoria(String categoria) {
-		return restauranteRepository.findByCategoriaAndAtivoTrue(categoria);
-	}
+    List<RestauranteResponseDTO> buscarRestaurantesAtivos();
 
-	/**
-	 * Atualizar restaurante
-	 */
-	public Restaurante atualizar(Long id, Restaurante restauranteAtualizado) {
-		Restaurante restaurante = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + id));
+    List<RestauranteResponseDTO> buscarTop5RestaurantesPorNome();
 
-		// Verificar nome único (se mudou)
-		if (!restaurante.getNome().equals(restauranteAtualizado.getNome())
-				&& restauranteRepository.findByNome(restauranteAtualizado.getNome()).isPresent()) {
-			throw new IllegalArgumentException("Nome já cadastrado: " + restauranteAtualizado.getNome());
-		}
+    List<RelatorioVendas> relatorioVendasPorRestaurante();
 
-		restaurante.setNome(restauranteAtualizado.getNome());
-		restaurante.setCategoria(restauranteAtualizado.getCategoria());
-		restaurante.setEndereco(restauranteAtualizado.getEndereco());
-		restaurante.setTelefone(restauranteAtualizado.getTelefone());
-		restaurante.setTaxaEntrega(restauranteAtualizado.getTaxaEntrega());
+    List<RestauranteResponseDTO> buscarPorTaxaEntrega(BigDecimal taxaEntrega);
 
-		return restauranteRepository.save(restaurante);
-	}
+    BigDecimal calcularTaxaEntrega(Long restauranteId, String cep);
 
-	/**
-	 * Inativar restaurante
-	 */
-	public void inativar(Long id) {
-		Restaurante restaurante = buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Restaurante não encontrado: " + id));
+    Page<RestauranteResponseDTO> buscarRestaurantesComPaginacao(String categoria, Boolean ativo, org.springframework.data.domain.Pageable pageable);
 
-		restaurante.setAtivo(false);
-		restauranteRepository.save(restaurante);
-	}
+    List<RestauranteResponseDTO> buscarRestaurantesProximos(String cep, Integer raio);
 
-	private void validarDadosRestaurante(Restaurante restaurante) {
-		if (restaurante.getNome() == null || restaurante.getNome().trim().isEmpty()) {
-			throw new IllegalArgumentException("Nome é obrigatório");
-		}
-
-		if (restaurante.getTaxaEntrega() != null && restaurante.getTaxaEntrega().compareTo(BigDecimal.ZERO) < 0) {
-			throw new IllegalArgumentException("Taxa de entrega não pode ser negativa");
-		}
-	}
+    boolean isOwner(Long restauranteId);
 }

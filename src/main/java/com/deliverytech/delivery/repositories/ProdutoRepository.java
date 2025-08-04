@@ -3,6 +3,8 @@ package com.deliverytech.delivery.repositories;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -46,6 +48,15 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
 
     List<Produto> findByDisponivelTrueOrderByPrecoDesc();
 
-    
+    @Override
+    void deleteById(Long id);
+
+    @Query("SELECT p FROM Produto p " +
+            "WHERE " +
+            "(:restauranteId IS NULL OR p.restaurante.id = :restauranteId  ) AND " +
+            "(:categoria IS NULL OR p.categoria = :categoria) AND " +
+            "(:disponivel IS NULL OR p.disponivel = :disponivel)")
+    Page<Produto> listarProdutosComPaginacao(Pageable pageable, @Param("restauranteId") Long restauranteId,
+                                             @Param("categoria") String categoria, @Param("disponivel") Boolean disponivel);
 }
 

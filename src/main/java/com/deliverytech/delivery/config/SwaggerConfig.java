@@ -1,39 +1,59 @@
 package com.deliverytech.delivery.config;
 
-import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.Server;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
-@ComponentScan(basePackages = "com.deliverytech.delivery")
 public class SwaggerConfig {
 
-	@Bean
-	public GroupedOpenApi publicApi() {
-		return GroupedOpenApi.builder()
-				.group("delivery-api")
-				.packagesToScan("com.deliverytech.delivery")
-				.pathsToMatch("/**")
-				.build();
-	}
+    @Value("${server.port:8081}")
+    private String serverPort;
 
-	// Personalização das informações da documentação
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info()
-                    .title("API Delivery")
-                    .description("Sistema para controle de pedidos, clientes e restaurantes.")
-                    .version("1.0")
-                    .contact(new Contact()
-                        .name("Heitor Delvecchi")
-                        .url("http://www.deliverytech.com.br")
-                        .email("contato@deliverytech.com.br"))
-                );
+                .info(apiInfo())
+                .servers(List.of(new Server()
+                        .url("http://localhost:" + serverPort)
+                        .description("Servidor de Desenvolvimento"), new Server()
+                        .url("https://api.deliverytech.com")
+                        .description("Servidor de Produção")))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()));
     }
+
+    private Info apiInfo() {
+        return new Info()
+                .title("DeliveryTech API")
+                .description("API REST para sistema de delivery de comida")
+                .version("1.0.0")
+                .contact(new Contact()
+                        .name("Equipe DeliveryTech")
+                        .email("dev@deliverytech.com")
+                        .url("https://deliverytech.com"))
+                .license(new License()
+                        .name("MIT License")
+                        .url("https://opensource.org/licenses/MIT"));
+    }
+
+    private SecurityScheme createAPIKeyScheme() {
+        return new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .bearerFormat("JWT")
+                .scheme("bearer")
+                .description("Insira o token JWT obtido no endpoint /api/auth/login");
+    }
+
 }

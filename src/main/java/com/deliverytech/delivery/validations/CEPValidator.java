@@ -1,26 +1,31 @@
 package com.deliverytech.delivery.validations;
 
-import java.util.regex.Pattern;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import java.util.regex.Pattern;
+
+import com.deliverytech.delivery.validations.annotations.ValidCEP;
+
 public class CEPValidator implements ConstraintValidator<ValidCEP, String> {
 
-	private static final Pattern CEP_PATTERN = Pattern.compile("^\\d{5}-?\\d{3}$");
+    private static final Pattern CEP_PATTERN =
+            Pattern.compile("^\\d{5}-?\\d{3}$");
 
-	//Método chamado automaticamente pelo Bean Validation para validar o valor
-	@Override
-	public void initialize(ValidCEP constraintAnnotation) {
-		// Nenhuma inicialização necessária
-	}
+    @Override
+    public void initialize(ValidCEP constraintAnnotation) {
+        // Inicialização se necessária
+    }
 
-	@Override
-	public boolean isValid(String cep, ConstraintValidatorContext context) {
-		if (cep == null || cep.trim().isEmpty()) {
-			return false;
-		}
-		String cleanCep = cep.trim().replaceAll("\\s", "");
-		return CEP_PATTERN.matcher(cleanCep).matches();
-	}
+    @Override
+    public boolean isValid(String cep, ConstraintValidatorContext context) {
+        if (cep == null || cep.trim().isEmpty()) {
+            return false;
+        }
+
+        String cleanCep = cep.trim().replaceAll("\s", "");
+        return CEP_PATTERN.matcher(cleanCep).matches();
+    }
+
 }

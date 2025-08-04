@@ -1,7 +1,7 @@
 package com.deliverytech.delivery.dtos;
 
-import com.deliverytech.delivery.validations.ValidCategoria;
-import com.deliverytech.delivery.validations.ValidTelefone;
+import com.deliverytech.delivery.validations.annotations.ValidCategoria;
+import com.deliverytech.delivery.validations.annotations.ValidTelefone;
 
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

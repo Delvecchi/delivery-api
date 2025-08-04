@@ -1,4 +1,4 @@
-package com.deliverytech.delivery.dtos;
+package com.deliverytech.delivery.projection;
 
 import java.math.BigDecimal;
 

@@ -4,13 +4,15 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.deliverytech.delivery.dtos.RelatorioVendas;
 import com.deliverytech.delivery.entities.Restaurante;
+import com.deliverytech.delivery.projection.RelatorioVendas;
 
 @Repository
 public interface RestauranteRepository extends JpaRepository<Restaurante, Long> {
@@ -25,7 +27,7 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 	List<Restaurante> findByCategoriaAndAtivoTrue(String categoria);
 
 	// Buscar por nome contendo (case insensitive)
-	List<Restaurante> findByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
+	Restaurante findByNomeContainingIgnoreCaseAndAtivoTrue(String nome);
 
 	// Buscar por avaliação mínima
 	List<Restaurante> findByAvaliacaoGreaterThanEqualAndAtivoTrue(BigDecimal avaliacao);
@@ -49,5 +51,16 @@ public interface RestauranteRepository extends JpaRepository<Restaurante, Long> 
 			+ "COUNT(p.id) as quantidePedidos " + "FROM Restaurante r "
 			+ "LEFT JOIN Pedido p ON r.id = p.restaurante.id " + "GROUP BY r.id, r.nome")
 	List<RelatorioVendas> relatorioVendasPorRestaurante();
+
+	@Query("SELECT r FROM Restaurante r WHERE " +
+            "(:categoria IS NULL OR r.categoria = :categoria) AND " +
+            "(:ativo IS NULL OR r.ativo = :ativo)")
+    Page<Restaurante> findByFilters(@Param("categoria") String categoria,
+                                    @Param("ativo") Boolean ativo,
+                                    Pageable pageable);
+
+    List<Restaurante> findByTaxaEntregaLessThanEqual(BigDecimal bigDecimal);
+
+    List<Restaurante> findTop5ByOrderByNomeAsc();
 }
 

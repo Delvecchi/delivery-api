@@ -2,40 +2,73 @@ package com.deliverytech.delivery.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
+
 import java.util.Map;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
+@Tag(name = "Health", description = "Endpoints para checagem da API")
 public class HealthController {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @GetMapping("/health")
-    public Map<String, String> health() {
-        return Map.of(
-            "status", "UP",
-            "timestamp", LocalDateTime.now().toString(),
-            "service", "Delivery API",
-            "javaversion", System.getProperty("java.version")
-        );
+    @Operation(summary = "Checa saúde da API", description = "Retorna informações sobre a saúde da API.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação bem-sucedida"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    public ResponseEntity<Map<String, String>> health() {
+        Map<String, String> healthInfo = Map.of(
+                "status", "UP",
+                "timestamp", LocalDateTime.now().format(FORMATTER),
+                "service", "Delivery API",
+                "javaVersion", System.getProperty("java.version"),
+                "springBootVersion", getClass().getPackage().getImplementationVersion() != null
+                        ? getClass().getPackage().getImplementationVersion()
+                        : "3.x.x",
+                "environment", "development");
+        return ResponseEntity.ok(healthInfo);
     }
 
     @GetMapping("/info")
-    public AppInfo info() {
-        return new AppInfo(
-            "Delivery Tech API",
-            "1.0.0",
-            "Heitor Delvecchi",
-            "JDK 21",
-            "Spring Boot 3.5.x"
+    @Operation(summary = "Checa informações da API", description = "Retorna informações sobre a API.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Operação bem-sucedida"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+    })
+    public ResponseEntity<AppInfo> info() {
+        AppInfo appInfo = new AppInfo(
+                "Delivery Tech API",
+                "1.0.0",
+                "Lucas Reis",
+                System.getProperty("java.version"),
+                "Spring Boot 3.5.2",
+                LocalDateTime.now().format(FORMATTER),
+                "Sistema de delivery moderno desenvolvido com as mais recentes tecnologias Java"
         );
+        return ResponseEntity.ok(appInfo);
     }
 
     public record AppInfo(
-        String application,
-        String version,
-        String developer,
-        String javaVersion,
-        String framework 
-    ) {}
-
+            String application,
+            String version,
+            String developer,
+            String javaVersion,
+            String framework,
+            String timestamp,
+            String description) {
+        public AppInfo {
+            if (application == null || application.isBlank()) {
+                throw new IllegalArgumentException("Application name cannot be null or blank");
+            }
+        }
+    }
 }

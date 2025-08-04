@@ -2,7 +2,7 @@ package com.deliverytech.delivery.dtos;
 
 import java.util.List;
 
-import com.deliverytech.delivery.validations.ValidCEP;
+import com.deliverytech.delivery.validations.annotations.ValidCEP;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

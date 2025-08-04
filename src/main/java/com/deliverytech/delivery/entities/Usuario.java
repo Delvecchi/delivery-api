@@ -1,168 +1,156 @@
 package com.deliverytech.delivery.entities;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-
+import com.deliverytech.delivery.enums.Role;
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.deliverytech.delivery.enums.Role;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
-@Table(name = "usuario")
+@Table(name = "usuarios")
 public class Usuario implements UserDetails {
 
-	private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-	@Column(nullable = false, unique = true)
-	private String email;
+    @Column(nullable = false)
+    private String senha;
 
-	@Column(nullable = false)
-	private String senha;
+    @Column(nullable = false)
+    private String nome;
 
-	@Column(nullable = false)
-	private String nome;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private Role role;
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
-	@Column(nullable = false)
-	private Boolean ativo = true;
+    @Column(name = "data_criacao", nullable = false)
+    private LocalDateTime dataCriacao = LocalDateTime.now();
 
-	@Column(name = "data_criacao", nullable = false)
-	private LocalDateTime dataCriacao = LocalDateTime.now();
+    @Column(name = "restaurante_id")
+    private Long restauranteId;
 
-	@Column(name = "restaurante_id")
-	private Long restauranteId;
+    // Construtores
+    public Usuario() {
+    }
 
-	// Construtores
-	public Usuario() {
+    public Usuario(String email, String senha, String nome, Role role) {
+        this.email = email;
+        this.senha = senha;
+        this.nome = nome;
+        this.role = role;
+        this.ativo = true;
+        this.dataCriacao = LocalDateTime.now();
+    }
 
-	}
+    // Implementação UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
 
-	public Usuario(String email, String senha, String nome, Role role) {
-		this.email = email;
-		this.senha = senha;
-		this.nome = nome;
-		this.role = role;
-		this.ativo = true;
-		this.dataCriacao = LocalDateTime.now();
-	}
+    @Override
+    public String getPassword() {
+        return senha;
+    }
 
-	// Implementação UserDetails
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
-	}
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
-	@Override
-	public String getPassword() {
-		return senha;
-	}
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	@Override
-	public String getUsername() {
-		return email;
-	}
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
+    @Override
+    public boolean isEnabled() {
+        return ativo;
+    }
 
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
+    // Getters e Setters
+    public Long getId() {
+        return id;
+    }
 
-	@Override
-	public boolean isEnabled() {
-		return ativo;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	// Getters e Setters
-	public Long getId() {
-		return id;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getSenha() {
+        return senha;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 
-	public String getSenha() {
-		return senha;
-	}
+    public String getNome() {
+        return nome;
+    }
 
-	public void setSenha(String senha) {
-		this.senha = senha;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-	public String getNome() {
-		return nome;
-	}
+    public Role getRole() {
+        return role;
+    }
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
-	public Role getRole() {
-		return role;
-	}
+    public Boolean getAtivo() {
+        return ativo;
+    }
 
-	public void setRole(Role role) {
-		this.role = role;
-	}
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
 
-	public Boolean getAtivo() {
-		return ativo;
-	}
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
 
-	public void setAtivo(Boolean ativo) {
-		this.ativo = ativo;
-	}
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
 
-	public LocalDateTime getDataCriacao() {
-		return dataCriacao;
-	}
+    public Long getRestauranteId() {
+        return restauranteId;
+    }
 
-	public void setDataCriacao(LocalDateTime dataCriacao) {
-		this.dataCriacao = dataCriacao;
-	}
-
-	public Long getRestauranteId() {
-		return restauranteId;
-	}
-
-	public void setRestauranteId(Long restauranteId) {
-		this.restauranteId = restauranteId;
-	}
+    public void setRestauranteId(Long restauranteId) {
+        this.restauranteId = restauranteId;
+    }
 }

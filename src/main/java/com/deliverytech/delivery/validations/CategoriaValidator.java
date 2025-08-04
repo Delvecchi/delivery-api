@@ -1,30 +1,31 @@
 package com.deliverytech.delivery.validations;
 
+import jakarta.validation.ConstraintValidator;
+
 import java.util.Arrays;
 import java.util.List;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import com.deliverytech.delivery.validations.annotations.ValidCategoria;
 
 public class CategoriaValidator implements ConstraintValidator<ValidCategoria, String> {
 
-	private static final List<String> CATEGORIAS_VALIDAS = Arrays.asList("BRASILEIRA", "ITALIANA", "JAPONESA",
-			"CHINESA", "MEXICANA", "FAST_FOOD", "PIZZA", "HAMBURGUER", "SAUDAVEL", "VEGETARIANA", "VEGANA", "DOCES",
-			"BEBIDAS", "LANCHES", "ACAI");
+    private static final List<String> CATEGORIAS_VALIDAS = Arrays.asList(
+            "BRASILEIRA", "ITALIANA", "JAPONESA", "CHINESA", "MEXICANA",
+            "FAST_FOOD", "PIZZA", "HAMBURGUER", "SAUDAVEL", "VEGETARIANA",
+            "VEGANA", "DOCES", "BEBIDAS", "LANCHES", "ACAI"
+    );
 
-	@Override
-	public void initialize(ValidCategoria constraintAnnotation) {
+    @Override
+    public void initialize(ValidCategoria constraintAnnotation) {
+        // Initialization logic if needed
+    }
 
-		// Inicialização se necessária
-	}
+    @Override
+    public boolean isValid(String categoria, jakarta.validation.ConstraintValidatorContext context) {
+        if (categoria == null || categoria.trim().isEmpty()) {
+            return false;
+        }
+        return CATEGORIAS_VALIDAS.contains(categoria.toUpperCase());
+    }
 
-	@Override
-	public boolean isValid(String categoria, ConstraintValidatorContext context) {
-
-		if (categoria == null || categoria.trim().isEmpty()) {
-			return false;
-		}
-
-		return CATEGORIAS_VALIDAS.contains(categoria.toUpperCase());
-	}
 }
